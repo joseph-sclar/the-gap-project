@@ -1,5 +1,5 @@
 import streamlit as st
-from pages import config
+
 
 st.set_page_config(
     page_title="The Gap Project",
