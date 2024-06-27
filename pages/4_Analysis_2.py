@@ -1,13 +1,9 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
 import altair as alt
 
 
-
-import plotly.figure_factory as ff
 
 st.title("Analysis 2")
 
@@ -119,42 +115,89 @@ if metric == 'Summary':
     
 else:
     
+    
+    
+    
     st.subheader(f"{metric} Comparison Across Industries")
     
     st.write(f"Here we can see a plot comparing the performance of {metric} in the Robotics and Transportation industries for Image and Video Campaigns. The log scale is used to better visualize the differences in performance.")
+    
+    st.text("")
+    st.text("")
+    
+    # Filter data for 'Image Campaign' and 'Video Campaign'
+    image_campaign_data = data[data['campaign_type'] == 'Image Campaign']
+    video_campaign_data = data[data['campaign_type'] == 'Video Campaign']
 
-    fig, ax = plt.subplots(figsize=(10, 6))
+    # Compute median values for each industry and campaign type
+    image_robotics_median = image_campaign_data[image_campaign_data['industry'] == 'Robotics'][metric].median()
+    image_transportation_median = image_campaign_data[image_campaign_data['industry'] == 'Transportation'][metric].median()
+    video_robotics_median = video_campaign_data[video_campaign_data['industry'] == 'Robotics'][metric].median()
+    video_transportation_median = video_campaign_data[video_campaign_data['industry'] == 'Transportation'][metric].median()
 
-    # Creating a bar plot to compare metrics between Industry R and Industry T
-    sns.barplot(
-        x='campaign_type', 
-        y=metric, 
-        hue='industry', 
-        ci=None,
-        data=data,
-        edgecolor='.2', 
-        linewidth=1.5, 
-        saturation=1,
-        palette='pastel',  
-        ax=ax
+    # Determine the maximum median value across all categories
+    max_median = max(image_robotics_median, image_transportation_median, video_robotics_median, video_transportation_median)
+
+    # Calculate the Y-axis maximum value
+    y_max = max_median * 1.25  # Adding 25% to the highest median value
+
+    # Create dataframes for Altair plot
+    median_image_robotics_df = pd.DataFrame({
+        'Campaign Type': ['Robotics'],
+        'Median': [image_robotics_median],
+        'Industry': ['Robotics']
+    })
+
+    median_image_transportation_df = pd.DataFrame({
+        'Campaign Type': ['Transportation'],
+        'Median': [image_transportation_median],
+        'Industry': ['Transportation']
+    })
+
+    median_video_robotics_df = pd.DataFrame({
+        'Campaign Type': ['Robotics'],
+        'Median': [video_robotics_median],
+        'Industry': ['Robotics']
+    })
+
+    median_video_transportation_df = pd.DataFrame({
+        'Campaign Type': ['Transportation'],
+        'Median': [video_transportation_median],
+        'Industry': ['Transportation']
+    })
+
+    # Create color mapping
+    color_scale = alt.Scale(domain=['Robotics', 'Transportation'], range=['#ADD8E6', '#FA8072'])  # Light Blue and Salmon
+
+    # Create Altair charts with shared y-axis max value
+    chart_image = alt.Chart(pd.concat([median_image_robotics_df, median_image_transportation_df])).mark_bar().encode(
+        x=alt.X('Campaign Type:N', title='Campaign Type'),
+        y=alt.Y('Median:Q', title=f'Median {metric}', scale=alt.Scale(domain=[0, y_max])),
+        color=alt.Color('Industry:N', scale=color_scale, legend=None)
+    ).properties(
+        width=350,  # Adjusted width
+        height=500,
+        title=f'Image Campaigns'
     )
 
-    # Enhancing plot titles and labels for clarity
-    ax.set_title(f'Comparison of {metric} Across Industries', fontsize=14, fontweight='bold')
-    ax.set_ylabel(metric, fontsize=12)
-    ax.set_xlabel('campaign_type', fontsize=12)
-    ax.tick_params(axis='x', rotation=45) 
-    ax.legend(title='Industry', frameon=True, shadow=True)
+    chart_video = alt.Chart(pd.concat([median_video_robotics_df, median_video_transportation_df])).mark_bar().encode(
+        x=alt.X('Campaign Type:N', title='Campaign Type'),
+        y=alt.Y('Median:Q', title=f'Median {metric}', scale=alt.Scale(domain=[0, y_max])),
+        color=alt.Color('Industry:N', scale=color_scale, legend=None)
+    ).properties(
+        width=350,  # Adjusted width
+        height=500,
+        title=f'Video Campaigns'
+    )
 
-    ax.set_yscale('log')
+    # Display the charts using Streamlit in two columns
+    col1, col2 = st.columns(2)
+    with col1:
+        st.altair_chart(chart_image)
 
-    ax.set_ylabel(f'{metric} (log scale)', fontsize=12)
+    with col2:
+        st.altair_chart(chart_video)
 
-    st.pyplot(fig)
-
-
-
-    fig, ax = plt.subplots(figsize=(10, 6))
 
 
 
