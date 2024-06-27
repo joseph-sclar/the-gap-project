@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+import altair as alt
 
 
 
@@ -36,41 +37,59 @@ if metric == 'Summary':
     st.write("The ratios are calculated using the formula:")
     st.latex(r'\text{Ratio} = \frac{\text{Metric Image Campaigns}}{\text{Metric Video Campaigns}}')
     
-    
-    
+    st.text("")
+    st.text("")
+    st.text("")
+    st.text("")
+        
     ratios_df = pd.read_csv("data/ratios.csv")
-    
+    # Melt the dataframe for Altair
     ratios_melted = pd.melt(ratios_df, id_vars='industry', var_name='metric', value_name='ratio')
+
+    # Define custom colors
+    color_map = {
+        'Robotics': 'lightblue',
+        'Transportation': 'salmon'
+    }
+
+    # List of unique metrics
+    metrics = ratios_melted['metric'].unique()
+
+    # Create two columns
+    col1, col2 = st.columns(2)
+
+    # Create a plot for each metric and add to the respective column
+    for i, metric in enumerate(metrics):
+        metric_data = ratios_melted[ratios_melted['metric'] == metric]
+
+        chart = alt.Chart(metric_data).mark_bar().encode(
+            x=alt.X('industry:N', title='Industry'),  # Title for x-axis
+            y=alt.Y('ratio:Q', title='Ratio'),  # Title for y-axis
+            color=alt.Color('industry:N', scale=alt.Scale(domain=list(color_map.keys()), range=list(color_map.values())), legend=None),
+            tooltip=['industry', 'metric', 'ratio']
+        ).properties(
+            title=f'{metric}',
+            width=300,  # Width of each chart
+            height=300  # Height of each chart
+        ).configure_view(
+            strokeOpacity=0  # Removes the gridlines
+        ).configure_axis(
+            labelFontSize=12,
+            titleFontSize=14,
+            titleFontWeight='bold'
+        )
+
+        # Add the chart to the appropriate column
+        if i % 2 == 0:
+            col1.altair_chart(chart, use_container_width=True)
+        else:
+            col2.altair_chart(chart, use_container_width=True)
+        
+
+   
     
-    fig, ax = plt.subplots(figsize=(12, 8))
-
-    sns.barplot(
-        x='metric', 
-        y='ratio', 
-        hue='industry', 
-        ci=None,
-        data=ratios_melted,
-        edgecolor='.2', 
-        linewidth=1.5, 
-        saturation=1,
-        palette='pastel',  
-        ax=ax
-    )
-
-    # Enhancing plot titles and labels for clarity
-    ax.set_title('Metric Ratios by Industry (Log Scale)', fontsize=14, fontweight='bold')
-    ax.set_ylabel('Ratio (Log Scale)', fontsize=12)
-    ax.set_xlabel('Metric', fontsize=12)
-    ax.tick_params(axis='x', rotation=45) 
-    ax.legend(title='Industry', frameon=True, shadow=True)
-
-    # Set log scale for y-axis
-    ax.set_yscale('log')
-
-    st.pyplot(fig)
-    
-    st.write("The plot above shows the ratios of key performance metrics between Image Campaigns and Video Campaigns in the Robotics and Transportation industries. A ratio above 1 indicates that Image Campaigns outperform Video Campaigns in that metric, while a ratio below 1 suggests the opposite. The log scale helps visualize the differences more clearly.")
-    st.write("Deep dive into the metrics:")
+    st.write("The plots above shows the ratios of key performance metrics between Image Campaigns and Video Campaigns in the Robotics and Transportation industries. A ratio above 1 indicates that Image Campaigns outperform Video Campaigns in that metric, while a ratio below 1 suggests the opposite.")
+    st.write("Deep dive into each metric to understand better:")
     
     tabs = ["CTR", "CR", "AOV", "CPC", "CPO", "ROI"]
     
