@@ -24,18 +24,22 @@ Welcome to the **Gap Project**! In this project, we're diving into a key questio
 st.write("---")
 
 # Divider with an emoji
-st.markdown("##  Approach")
+st.markdown("## Approach")
 
 st.write("""
-For this demonstration, we'll focus on two key analyses. However, it's important to note that the actual project was more extensive, involving additional steps such as data collection and cleaning, handeling outliers, univariate analysis, other multivariate analyses, and more. For the sake of brevity in this demo, we're highlighting just two analyses:
+For this demo, we're focusing on two main analyses from a larger project that included extensive data collection, cleaning, handling outliers, and various other analyses:
 """)
 
 st.markdown("""
-1. **Client Satisfaction Comparison:** Are clients more satisfied with the performance of transportation campaigns compared to robotics?
-2. **Performance Influences:** Are the differences in performance inherent to industry characteristics, or is there more to consider?
+1. **Client Satisfaction Comparison:** We'll compare client satisfaction levels between transportation and robotics campaigns.
+2. **Performance Influences:** We'll explore whether industry-specific characteristics significantly influence campaign performance.
 """)
 
 st.write("---")
+
+st.write("""
+Note that in the full project, we also conducted thorough data exploration, univariate and multivariate analyses, and addressed outliers among other steps. However, to keep things clear and focused in this demo, we're showcasing these two key analyses.
+""")
 
 
 # Visual divider
