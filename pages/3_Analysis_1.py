@@ -96,9 +96,9 @@ with tab2:
 
     # Display charts in columns
     with col1:
-        st.plotly_chart(fig1)
+        st.plotly_chart(fig1, use_container_width=True)
     with col2:
-        st.plotly_chart(fig2) 
+        st.plotly_chart(fig2, use_container_width=True) 
         
 
 st.write("--------------------------------------")
