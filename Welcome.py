@@ -43,9 +43,8 @@ st.markdown("## Conclusion")
 
 # Conclusion with call-to-action
 st.write("""
-By systematically addressing these aspects, we'll be able to determine if there's a significant performance gap between the Transportation and Robotics industries when it comes to video-only marketing campaigns.
-
-Let's get started and dive into the analysis!
+There is a clear performance gap between transporatation and robotics marketing campaigns in video campaigns, not entirely explained by industry
+differences. This suggests potential for improving transporatation campaign performance.
 """)
 
 
