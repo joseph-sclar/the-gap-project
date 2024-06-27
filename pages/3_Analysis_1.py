@@ -3,7 +3,8 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-
+import altair as alt
+import plotly.express as px
 
 
 import plotly.figure_factory as ff
@@ -30,60 +31,74 @@ tab1, tab2 = st.tabs(["Budget Analysis",   "Churn Analysis" ])
 
 
 with tab1:
-    st.subheader("Median Spend in 2022 vs 2023")
-    st.write("Highlights of the trend changes in median spending between 2022 and 2023 across industries.")
-    
-    col1, col2 = st.columns(2)
-    with col1:
-        transportation_difference = f"${churn_data.loc[0, 'median spend difference']:,.0f}"
-        st.metric(label="Transportation", value=transportation_difference)
-    with col2:
-        robotics_difference = f"${churn_data.loc[1, 'median spend difference']:,.0f}"
-        st.metric(label="Robotics", value=robotics_difference)
-        
-    
-    
-    fig, ax = plt.subplots()
-    churn_data.plot(kind='bar', x='industry', y=['2022 median spend', '2023 median spend'], ax=ax)
-    ax.set_title('Median Spend in 2022 vs 2023')
-    ax.set_ylabel('Median Spend')
-    ax.get_yaxis().set_major_formatter(
-        plt.FuncFormatter(lambda x, loc: "${:,}".format(int(x)))
+    # Melt the data to have year as a variable
+    melted_data = churn_data.melt(id_vars='industry', var_name='year', value_name='median_spend')
+
+    # Set the maximum y-axis value
+    max_y_value = 10000
+
+    # Define color scale
+    color_scale = alt.Scale(
+        domain=['2022 median spend', '2023 median spend'],
+        range=['lightblue', 'salmon']
     )
-    st.pyplot(fig)
 
+    # Create a bar chart
+    chart = alt.Chart(melted_data).mark_bar().encode(
+        x=alt.X('industry:N', title='Industry'),
+        y=alt.Y('median_spend:Q', title='Median Spend', axis=alt.Axis(format='$,.0f'), scale=alt.Scale(domain=[0, max_y_value])),
+        color=alt.Color('year:N', scale=color_scale, title='Year'),
+        xOffset='year:N'
+    ).properties(
+        title='Median Spend by Industry and Year',
+        width=alt.Step(100),
+        height=750 
+    ).configure_axis(
+        labelAngle=0
+    )
 
-        
+    st.altair_chart(chart, use_container_width=True)
+
+           
 with tab2:
     st.subheader("Churn Rate")
     st.write("Churn is defined as the percentage of customers who had an active campaign in 2022, but not in 2023.")
 
-    # Create two columns
+    colors = ['salmon', 'lightblue']
+
     col1, col2 = st.columns(2)
 
-    # Plot for transportation in the first column
-    with col1:
-        fig1, ax1 = plt.subplots()
-        industry1 = churn_data.loc[0, 'industry']
-        churned_rate1 = churn_data.loc[0, 'churned']
-        non_churned_rate1 = 1 - churned_rate1
-        labels1 = ['Churned', 'Non-Churned']
-        sizes1 = [churned_rate1, non_churned_rate1]
-        ax1.pie(sizes1, labels=labels1, autopct='%1.1f%%', startangle=90)
-        ax1.set_title(f'{industry1}')
-        st.pyplot(fig1)
+    # Plot for the first industry
+    industry1 = churn_data.loc[0, 'industry']
+    churned_rate1 = churn_data.loc[0, 'churned']
+    non_churned_rate1 = 1 - churned_rate1
+    labels1 = ['Churned', 'Non-Churned']
+    sizes1 = [churned_rate1, non_churned_rate1]
+    pie_data1 = pd.DataFrame({
+        'Status': labels1,
+        'Rate': sizes1
+    })
+    fig1 = px.pie(pie_data1, names='Status', values='Rate', title=industry1, hole=0.3,  width=350, height=350)
+    fig1.update_traces(marker=dict(colors=colors))
 
-    # Plot for robotics in the second column
+    # Plot for the second industry
+    industry2 = churn_data.loc[1, 'industry']
+    churned_rate2 = churn_data.loc[1, 'churned']
+    non_churned_rate2 = 1 - churned_rate2
+    labels2 = ['Churned', 'Non-Churned']
+    sizes2 = [churned_rate2, non_churned_rate2]
+    pie_data2 = pd.DataFrame({
+        'Status': labels2,
+        'Rate': sizes2
+    })
+    fig2 = px.pie(pie_data2, names='Status', values='Rate', title=industry2, hole=0.3,  width=350, height=350)
+    fig2.update_traces(marker=dict(colors=colors))
+
+    # Display charts in columns
+    with col1:
+        st.plotly_chart(fig1)
     with col2:
-        fig2, ax2 = plt.subplots()
-        industry2 = churn_data.loc[1, 'industry']
-        churned_rate2 = churn_data.loc[1, 'churned']
-        non_churned_rate2 = 1 - churned_rate2
-        labels2 = ['Churned', 'Non-Churned']
-        sizes2 = [churned_rate2, non_churned_rate2]
-        ax2.pie(sizes2, labels=labels2, autopct='%1.1f%%', startangle=90)
-        ax2.set_title(f'{industry2}')
-        st.pyplot(fig2)     
+        st.plotly_chart(fig2) 
         
 
 st.write("--------------------------------------")
