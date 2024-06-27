@@ -4,7 +4,7 @@ import numpy as np
 
 import seaborn as sns
 import altair as alt
-import plotly.express as px
+
 
 
 import plotly.figure_factory as ff
@@ -64,41 +64,46 @@ with tab2:
     st.subheader("Churn Rate")
     st.write("Churn is defined as the percentage of customers who had an active campaign in 2022, but not in 2023.")
 
-    colors = ['salmon', 'lightblue']
-
-    col1, col2 = st.columns(2)
-
-    # Plot for the first industry
+    # Create data for Altair pie charts
     industry1 = churn_data.loc[0, 'industry']
     churned_rate1 = churn_data.loc[0, 'churned']
     non_churned_rate1 = 1 - churned_rate1
-    labels1 = ['Churned', 'Non-Churned']
-    sizes1 = [churned_rate1, non_churned_rate1]
-    pie_data1 = pd.DataFrame({
-        'Status': labels1,
-        'Rate': sizes1
+    data1 = pd.DataFrame({
+        'Status': ['Churned', 'Non-Churned'],
+        'Rate': [churned_rate1, non_churned_rate1]
     })
-    fig1 = px.pie(pie_data1, names='Status', values='Rate', title=industry1, hole=0.3,  width=350, height=350)
-    fig1.update_traces(marker=dict(colors=colors))
 
-    # Plot for the second industry
     industry2 = churn_data.loc[1, 'industry']
     churned_rate2 = churn_data.loc[1, 'churned']
     non_churned_rate2 = 1 - churned_rate2
-    labels2 = ['Churned', 'Non-Churned']
-    sizes2 = [churned_rate2, non_churned_rate2]
-    pie_data2 = pd.DataFrame({
-        'Status': labels2,
-        'Rate': sizes2
+    data2 = pd.DataFrame({
+        'Status': ['Churned', 'Non-Churned'],
+        'Rate': [churned_rate2, non_churned_rate2]
     })
-    fig2 = px.pie(pie_data2, names='Status', values='Rate', title=industry2, hole=0.3,  width=350, height=350)
-    fig2.update_traces(marker=dict(colors=colors))
 
-    # Display charts in columns
+    # Create Altair pie charts
+    chart1 = alt.Chart(data1).mark_arc(innerRadius=50).encode(
+        theta=alt.Theta(field='Rate', type='quantitative'),
+        color=alt.Color(field='Status', type='nominal', scale=alt.Scale(range=['salmon', 'lightblue'])),
+        tooltip=['Status', 'Rate']
+    ).properties(
+        title=industry1
+    )
+
+    chart2 = alt.Chart(data2).mark_arc(innerRadius=50).encode(
+        theta=alt.Theta(field='Rate', type='quantitative'),
+        color=alt.Color(field='Status', type='nominal', scale=alt.Scale(range=['salmon', 'lightblue'])),
+        tooltip=['Status', 'Rate']
+    ).properties(
+        title=industry2
+    )
+
+    # Display charts side by side
+    col1, col2 = st.columns(2)
     with col1:
-        st.plotly_chart(fig1, use_container_width=True)
+        st.altair_chart(chart1, use_container_width=True)
     with col2:
-        st.plotly_chart(fig2, use_container_width=True) 
+        st.altair_chart(chart2, use_container_width=True)
         
 
 st.write("--------------------------------------")
