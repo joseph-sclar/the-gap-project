@@ -35,12 +35,13 @@ st.markdown("""
 2. **Performance Influences:** We'll explore whether industry-specific characteristics significantly influence campaign performance.
 """)
 
-st.write("---")
+
 
 st.write("""
 Note that in the full project, we also conducted thorough data exploration, univariate and multivariate analyses, and addressed outliers among other steps. However, to keep things clear and focused in this demo, we're showcasing these two key analyses.
 """)
 
+st.write("---")
 
 # Visual divider
 st.markdown("## Conclusion")
