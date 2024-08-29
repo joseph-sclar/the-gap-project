@@ -11,8 +11,6 @@ import altair as alt
 st.title("Analysis 1")  
 
 
-# Set pastel color palette
-sns.set_palette("pastel")
 
 # Streamlit app
 
